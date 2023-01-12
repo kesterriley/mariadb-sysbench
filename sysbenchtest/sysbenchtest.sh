@@ -46,18 +46,22 @@ cleanSysBench() {
 makecsv () {
   echo "... preparing CSV"
 
+  #SOSarlacii - 2023-0112: ??? egrep is deprecated in favour of 'grep -E'?
   cat  ./results/$1-$2.log | egrep " cat|threads:|transactions|read:|write:|other:|total:|errors:|reconnects:|min:|avg:|max:|percentile:"| tr -d "\n"| sed 's/Number of threads: //g' | sed 's/\[/\n/g' | sed 's/[A-Za-z\/]\{1,\}://g' | sed 's/ \.//g' | sed -e 's/read\/write//g' -e 's/95th//g' -e 's/per sec.)//g' -e 's/ms//g' -e 's/ignored//g' -e 's/(//g' -e 's/^.*cat //g' | sed 's/ \{1,\}/\|/g' >> $outputfile
+  #SOSarlacii - 2023-0112: Add carriage return to end each line, else only the first thread number is printed, and the rest are swallowed, making one long line.
+  printf "\n" >> $outputfile
   echo "... Created CSV"
 }
 
   preparesystem
   prepareDatabase
 
-for TESTTORUN in `echo $lv_test_to_run`
+#SOSarlacii - 2023-0112: Best practice is $() instead of back ticks
+for TESTTORUN in $(echo $lv_test_to_run)
 do
   prepareoutfile $TESTTORUN
   echo "Running $TESTTORUN"
-  for THREAD in `echo $lv_threads`
+  for THREAD in $(echo $lv_threads)
   do
     echo "Running $TESTTORUN for $THREAD threads"
     prepareSysBench $TESTTORUN
